@@ -1,0 +1,15 @@
+{
+  "name": "navora",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Navora — AI-powered adaptive travel planning (development scaffold)",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

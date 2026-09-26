@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navora — Dev</title>
+    <style>
+      :root {
+        font-family: system-ui, sans-serif;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      body {
+        max-width: 40rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      h1 {
+        margin-bottom: 0.25rem;
+      }
+      form {
+        display: grid;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+      }
+      label {
+        display: grid;
+        gap: 0.25rem;
+        font-weight: 600;
+      }
+      input,
+      button {
+        font: inherit;
+        padding: 0.5rem 0.75rem;
+      }
+      button {
+        cursor: pointer;
+        background: #0369a1;
+        color: white;
+        border: none;
+        border-radius: 6px;
+      }
+      #status {
+        min-height: 1.25rem;
+        color: #0369a1;
+      }
+      ul {
+        padding-left: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Navora</h1>
+    <p>Development scaffold — create a trip to verify the API and UI.</p>
+
+    <form id="trip-form">
+      <label>
+        Destination
+        <input name="destination" required placeholder="Colombo" />
+      </label>
+      <label>
+        Start date
+        <input name="startDate" type="date" required />
+      </label>
+      <label>
+        Travelers
+        <input name="travelers" type="number" min="1" value="2" required />
+      </label>
+      <button type="submit">Plan trip</button>
+    </form>
+
+    <p id="status" role="status"></p>
+    <h2>Your trips</h2>
+    <ul id="trips"></ul>
+
+    <script>
+      const statusEl = document.getElementById("status");
+      const tripsEl = document.getElementById("trips");
+      const form = document.getElementById("trip-form");
+
+      async function loadTrips() {
+        const res = await fetch("/api/trips");
+        const data = await res.json();
+        tripsEl.innerHTML = "";
+        for (const trip of data.trips) {
+          const li = document.createElement("li");
+          li.textContent = `${trip.destination} — ${trip.startDate} (${trip.travelers} travelers)`;
+          tripsEl.appendChild(li);
+        }
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        statusEl.textContent = "Saving…";
+        const body = {
+          destination: form.destination.value,
+          startDate: form.startDate.value,
+          travelers: Number(form.travelers.value),
+        };
+        const res = await fetch("/api/trips", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          statusEl.textContent = "Failed to save trip.";
+          return;
+        }
+        statusEl.textContent = "Trip saved.";
+        form.reset();
+        await loadTrips();
+      });
+
+      loadTrips();
+    </script>
+  </body>
+</html>
